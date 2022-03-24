@@ -1,7 +1,11 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-SET(CMAKE_LEGACY_CYGWIN_WIN32 0)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.12)
 
 PROJECT(g2o)
+
+# Enable find_package to search within environment variable_requires
+# find_package(name) will use environment variable name_ROOT in order to find
+# the package
+cmake_policy(SET CMP0074 NEW)
 
 SET(g2o_C_FLAGS)
 SET(g2o_CXX_FLAGS)
@@ -54,14 +58,12 @@ IF(OPENMP_FOUND AND G2O_USE_OPENMP)
 ENDIF(OPENMP_FOUND AND G2O_USE_OPENMP)
 
 # Compiler specific options for gcc
-SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
-SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -march=native")
-# SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-# SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
-
-# activate warnings !!!
-SET(g2o_C_FLAGS "${g2o_C_FLAGS} -Wall -W")
-SET(g2o_CXX_FLAGS "${g2o_CXX_FLAGS} -Wall -W")
+if(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -march=native")
+  SET(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -march=native")
+  SET(g2o_C_FLAGS "${g2o_C_FLAGS} -Wall -W")
+  SET(g2o_CXX_FLAGS "${g2o_CXX_FLAGS} -Wall -W")
+endif()
 
 # specifying compiler flags
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${g2o_CXX_FLAGS}")

@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.12)
 project(DBoW2)
+
+# Enable find_package to search within environment variable_requires
+# find_package(name) will use environment variable name_ROOT in order to find
+# the package
+cmake_policy(SET CMP0074 NEW)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
@@ -43,3 +48,30 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 add_library(DBoW2 SHARED ${SRCS_DBOW2} ${SRCS_DUTILS})
 target_link_libraries(DBoW2 ${OpenCV_LIBS})
 
+#Boost dependency
+if(NOT DEFINED BOOST_ROOT)
+  if (DEFINED ENV{BOOST_ROOT})
+    set(BOOST_ROOT $ENV{BOOST_ROOT} CACHE PATH "")
+	message(STATUS "Using system defined BOOST_ROOT ${BOOST_ROOT}") 
+  else()
+    set(BOOST_ROOT "BOOST_ROOT-NOTFOUND" CACHE PATH "Boost library root")
+  endif()
+  
+endif()
+
+set(Boost_USE_STATIC_LIBS        OFF)  # only find static libs
+set(Boost_USE_DEBUG_LIBS         OFF) # ignore debug libs and
+set(Boost_USE_RELEASE_LIBS       ON)  # only find release libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME    OFF)
+find_package(Boost ${BOOST_VERSION} REQUIRED COMPONENTS serialization)
+
+if(Boost_FOUND)
+  include_directories(${Boost_INCLUDE_DIRS})
+  target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+
+  if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DWIN32_LEAN_AND_MEAN")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DWIN32_LEAN_AND_MEAN")
+  endif(MSVC)
+endif()
