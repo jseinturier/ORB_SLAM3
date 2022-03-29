@@ -12,8 +12,8 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall   -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall   -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W2 -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2 -O3")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 
@@ -30,6 +30,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 # MSVC FIX FOR C++17 MACROS
 if(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus -DUNICODE")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_HAS_STD_BYTE=0") # Avoid STL byte error on MSVC
 else()
   # Check C++11 or C++0x support
   include(CheckCXXCompilerFlag)
@@ -56,7 +57,7 @@ else() # Linux extra flags
 endif()
 
 # C++ Flags
-list(APPEND flags "-fPIC" "-Wall -O1")
+list(APPEND flags "-fPIC")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
@@ -138,7 +139,8 @@ include/GeometricTools.h
 include/TwoViewReconstruction.h
 include/SerializationUtils.h
 include/Config.h
-include/Settings.h)
+include/Settings.h
+include/SLAMEventHandler.hpp)
 
 # Dependecy to DBoW2
 add_subdirectory(Thirdparty/DBoW2)

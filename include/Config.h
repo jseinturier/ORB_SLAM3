@@ -19,7 +19,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <unistd.h>
+#if defined(_WINDOWS) || defined(_WIN32) || defined(_WIN64)
+  #include<windows.h>
+#else
+  #include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>

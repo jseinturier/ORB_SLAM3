@@ -19,12 +19,21 @@
 #include "MapDrawer.h"
 #include "MapPoint.h"
 #include "KeyFrame.h"
-#include <pangolin/pangolin.h>
 #include <mutex>
 
 namespace ORB_SLAM3
 {
 
+
+/*
+
+# Map points list begining
+@PTSB 
+
+# Map points list ending
+@PTSB 
+
+*/
 
 MapDrawer::MapDrawer(Atlas* pAtlas, const string &strSettingPath, Settings* settings):mpAtlas(pAtlas)
 {
@@ -134,6 +143,8 @@ bool MapDrawer::ParseViewerParamFile(cv::FileStorage &fSettings)
 
 void MapDrawer::DrawMapPoints()
 {
+    std::cout << "@PTSB" << std::endl;
+
     Map* pActiveMap = mpAtlas->GetCurrentMap();
     if(!pActiveMap)
         return;
@@ -146,37 +157,33 @@ void MapDrawer::DrawMapPoints()
     if(vpMPs.empty())
         return;
 
-    glPointSize(mPointSize);
-    glBegin(GL_POINTS);
-    glColor3f(0.0,0.0,0.0);
-
+    
+    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - All" << std::endl;
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
     {
         if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
             continue;
         Eigen::Matrix<float,3,1> pos = vpMPs[i]->GetWorldPos();
-        glVertex3f(pos(0),pos(1),pos(2));
+        std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
     }
-    glEnd();
-
-    glPointSize(mPointSize);
-    glBegin(GL_POINTS);
-    glColor3f(1.0,0.0,0.0);
-
+   
+    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - Reference" << std::endl;
     for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
     {
         if((*sit)->isBad())
             continue;
         Eigen::Matrix<float,3,1> pos = (*sit)->GetWorldPos();
-        glVertex3f(pos(0),pos(1),pos(2));
+        std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
 
     }
-
-    glEnd();
+    std::cout << "@PTSE" << std::endl;
 }
 
 void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const bool bDrawInertialGraph, const bool bDrawOptLba)
 {
+
+    std::cout << "[SLAMEventHandler][DrawKeyFrames()] start" << std::endl;
+
     const float &w = mKeyFrameSize;
     const float h = w*0.75;
     const float z = w*0.6;
@@ -191,148 +198,89 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const b
 
     const vector<KeyFrame*> vpKFs = pActiveMap->GetAllKeyFrames();
 
-    if(bDrawKF)
+    // Display the Key Frames 3D positions as 4x4 matrix (Row Major)
+    for(size_t i=0; i<vpKFs.size(); i++)
     {
-        for(size_t i=0; i<vpKFs.size(); i++)
+        KeyFrame* pKF = vpKFs[i];
+        Eigen::Matrix4f Twc = pKF->GetPoseInverse().matrix();
+        unsigned int index_color = pKF->mnOriginMapId;
+
+        std::cout << "[SLAMEventHandler][DrawKeyFrames()]   KeyFrame " << pKF->mnId;
+
+        if(!pKF->GetParent()) // It is the first KF in the map
         {
-            KeyFrame* pKF = vpKFs[i];
-            Eigen::Matrix4f Twc = pKF->GetPoseInverse().matrix();
-            unsigned int index_color = pKF->mnOriginMapId;
+            std::cout << " (first)";
+        }
+        else
+        {
 
-            glPushMatrix();
-
-            glMultMatrixf((GLfloat*)Twc.data());
-
-            if(!pKF->GetParent()) // It is the first KF in the map
+            if(sOptKFs.find(pKF->mnId) != sOptKFs.end())
             {
-                glLineWidth(mKeyFrameLineWidth*5);
-                glColor3f(1.0f,0.0f,0.0f);
-                glBegin(GL_LINES);
+                std::cout << " (optimized)";
+            }
+            else if(sFixedKFs.find(pKF->mnId) != sFixedKFs.end())
+            {
+                std::cout << " (fixed)";
             }
             else
             {
-                //cout << "Child KF: " << vpKFs[i]->mnId << endl;
-                glLineWidth(mKeyFrameLineWidth);
-                if (bDrawOptLba) {
-                    if(sOptKFs.find(pKF->mnId) != sOptKFs.end())
-                    {
-                        glColor3f(0.0f,1.0f,0.0f); // Green -> Opt KFs
-                    }
-                    else if(sFixedKFs.find(pKF->mnId) != sFixedKFs.end())
-                    {
-                        glColor3f(1.0f,0.0f,0.0f); // Red -> Fixed KFs
-                    }
-                    else
-                    {
-                        glColor3f(0.0f,0.0f,1.0f); // Basic color
-                    }
-                }
-                else
-                {
-                    glColor3f(0.0f,0.0f,1.0f); // Basic color
-                }
-                glBegin(GL_LINES);
-            }
-
-            glVertex3f(0,0,0);
-            glVertex3f(w,h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(w,-h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(-w,-h,z);
-            glVertex3f(0,0,0);
-            glVertex3f(-w,h,z);
-
-            glVertex3f(w,h,z);
-            glVertex3f(w,-h,z);
-
-            glVertex3f(-w,h,z);
-            glVertex3f(-w,-h,z);
-
-            glVertex3f(-w,h,z);
-            glVertex3f(w,h,z);
-
-            glVertex3f(-w,-h,z);
-            glVertex3f(w,-h,z);
-            glEnd();
-
-            glPopMatrix();
-
-            glEnd();
-        }
-    }
-
-    if(bDrawGraph)
-    {
-        glLineWidth(mGraphLineWidth);
-        glColor4f(0.0f,1.0f,0.0f,0.6f);
-        glBegin(GL_LINES);
-
-        // cout << "-----------------Draw graph-----------------" << endl;
-        for(size_t i=0; i<vpKFs.size(); i++)
-        {
-            // Covisibility Graph
-            const vector<KeyFrame*> vCovKFs = vpKFs[i]->GetCovisiblesByWeight(100);
-            Eigen::Vector3f Ow = vpKFs[i]->GetCameraCenter();
-            if(!vCovKFs.empty())
-            {
-                for(vector<KeyFrame*>::const_iterator vit=vCovKFs.begin(), vend=vCovKFs.end(); vit!=vend; vit++)
-                {
-                    if((*vit)->mnId<vpKFs[i]->mnId)
-                        continue;
-                    Eigen::Vector3f Ow2 = (*vit)->GetCameraCenter();
-                    glVertex3f(Ow(0),Ow(1),Ow(2));
-                    glVertex3f(Ow2(0),Ow2(1),Ow2(2));
-                }
-            }
-
-            // Spanning tree
-            KeyFrame* pParent = vpKFs[i]->GetParent();
-            if(pParent)
-            {
-                Eigen::Vector3f Owp = pParent->GetCameraCenter();
-                glVertex3f(Ow(0),Ow(1),Ow(2));
-                glVertex3f(Owp(0),Owp(1),Owp(2));
-            }
-
-            // Loops
-            set<KeyFrame*> sLoopKFs = vpKFs[i]->GetLoopEdges();
-            for(set<KeyFrame*>::iterator sit=sLoopKFs.begin(), send=sLoopKFs.end(); sit!=send; sit++)
-            {
-                if((*sit)->mnId<vpKFs[i]->mnId)
-                    continue;
-                Eigen::Vector3f Owl = (*sit)->GetCameraCenter();
-                glVertex3f(Ow(0),Ow(1),Ow(2));
-                glVertex3f(Owl(0),Owl(1),Owl(2));
+                std::cout << "(idle)";
             }
         }
 
-        glEnd();
-    }
+        std::cout << " Pos: [mat4x4_RM][" << Twc(0, 0) << " " << Twc(0, 1) << " " << Twc(0, 2) << " " << Twc(0, 3)
+                                          << Twc(1, 0) << " " << Twc(1, 1) << " " << Twc(1, 2) << " " << Twc(1, 3)
+                                          << Twc(2, 0) << " " << Twc(2, 1) << " " << Twc(2, 2) << " " << Twc(2, 3)
+                                          << Twc(3, 0) << " " << Twc(3, 1) << " " << Twc(3, 2) << " " << Twc(3, 3) << "]" << std::endl;
 
-    if(bDrawInertialGraph && pActiveMap->isImuInitialized())
-    {
-        glLineWidth(mGraphLineWidth);
-        glColor4f(1.0f,0.0f,0.0f,0.6f);
-        glBegin(GL_LINES);
 
-        //Draw inertial links
-        for(size_t i=0; i<vpKFs.size(); i++)
+        // Covisibilty graph
+        std::cout << "[SLAMEventHandler][DrawKeyFrames()]     Covisibility: ";
+        const vector<KeyFrame*> vCovKFs = pKF->GetCovisiblesByWeight(100);
+        Eigen::Vector3f Ow = pKF->GetCameraCenter();
+        if (!vCovKFs.empty())
         {
-            KeyFrame* pKFi = vpKFs[i];
-            Eigen::Vector3f Ow = pKFi->GetCameraCenter();
+            for (vector<KeyFrame*>::const_iterator vit = vCovKFs.begin(), vend = vCovKFs.end(); vit != vend; vit++)
+            {
+                std::cout << (*vit)->mnId << ", ";
+            }
+            std::cout << std::endl;
+        }
+        else {
+            std::cout << "empty" << std::endl;
+        }
+
+        // Spanning tree
+        std::cout << "[SLAMEventHandler][DrawKeyFrames()]     Tree parent: ";
+        KeyFrame* pParent = pKF->GetParent();
+        if (pParent)
+        {
+            std::cout << pParent->mnId;
+        }
+
+        // Loops
+        std::cout << "[SLAMEventHandler][DrawKeyFrames()]     Loops: ";
+        set<KeyFrame*> sLoopKFs = pKF->GetLoopEdges();
+        for (set<KeyFrame*>::iterator sit = sLoopKFs.begin(), send = sLoopKFs.end(); sit != send; sit++)
+        {
+            std::cout << (*sit)->mnId << ", ";
+        }
+
+        // IMU graph
+        if (pActiveMap->isImuInitialized()) {
+            std::cout << "[SLAMEventHandler][DrawKeyFrames()]     IMU Link: ";
+            KeyFrame* pKFi = pKFi;
             KeyFrame* pNext = pKFi->mNextKF;
-            if(pNext)
+            if (pNext)
             {
-                Eigen::Vector3f Owp = pNext->GetCameraCenter();
-                glVertex3f(Ow(0),Ow(1),Ow(2));
-                glVertex3f(Owp(0),Owp(1),Owp(2));
+                std::cout << pNext->mnId << std::endl;
+            }
+            else {
+                std::cout << " none" << std::endl;
             }
         }
-
-        glEnd();
     }
-
+/*
     vector<Map*> vpMaps = mpAtlas->GetAllMaps();
 
     if(bDrawKF)
@@ -393,48 +341,15 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const b
             }
         }
     }
+*/
 }
 
-void MapDrawer::DrawCurrentCamera(pangolin::OpenGlMatrix &Twc)
+void MapDrawer::DrawCurrentCamera(cv::Mat &Twc)
 {
-    const float &w = mCameraSize;
-    const float h = w*0.75;
-    const float z = w*0.6;
-
-    glPushMatrix();
-
-#ifdef HAVE_GLES
-        glMultMatrixf(Twc.m);
-#else
-        glMultMatrixd(Twc.m);
-#endif
-
-    glLineWidth(mCameraLineWidth);
-    glColor3f(0.0f,1.0f,0.0f);
-    glBegin(GL_LINES);
-    glVertex3f(0,0,0);
-    glVertex3f(w,h,z);
-    glVertex3f(0,0,0);
-    glVertex3f(w,-h,z);
-    glVertex3f(0,0,0);
-    glVertex3f(-w,-h,z);
-    glVertex3f(0,0,0);
-    glVertex3f(-w,h,z);
-
-    glVertex3f(w,h,z);
-    glVertex3f(w,-h,z);
-
-    glVertex3f(-w,h,z);
-    glVertex3f(-w,-h,z);
-
-    glVertex3f(-w,h,z);
-    glVertex3f(w,h,z);
-
-    glVertex3f(-w,-h,z);
-    glVertex3f(w,-h,z);
-    glEnd();
-
-    glPopMatrix();
+    std::cout << "[SLAMEventHandler][DrawCurrentCamera()] Camera : [" << Twc.at<double>(0, 0) << " " << Twc.at<double>(0, 1) << " " << Twc.at<double>(0, 2) << " " << Twc.at<double>(0, 3) 
+                                                                      << Twc.at<double>(1, 0) << " " << Twc.at<double>(1, 1) << " " << Twc.at<double>(1, 2) << " " << Twc.at<double>(1, 3) 
+                                                                      << Twc.at<double>(2, 0) << " " << Twc.at<double>(2, 1) << " " << Twc.at<double>(2, 2) << " " << Twc.at<double>(2, 3) 
+                                                                      << Twc.at<double>(3, 0) << " " << Twc.at<double>(3, 1) << " " << Twc.at<double>(3, 2) << " " << Twc.at<double>(3, 3) << "]" << std::endl;
 }
 
 
@@ -444,7 +359,7 @@ void MapDrawer::SetCurrentCameraPose(const Sophus::SE3f &Tcw)
     mCameraPose = Tcw.inverse();
 }
 
-void MapDrawer::GetCurrentOpenGLCameraMatrix(pangolin::OpenGlMatrix &M, pangolin::OpenGlMatrix &MOw)
+void MapDrawer::GetCurrentOpenGLCameraMatrix(cv::Mat &M, cv::Mat &MOw)
 {
     Eigen::Matrix4f Twc;
     {
