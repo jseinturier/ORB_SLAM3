@@ -29,6 +29,8 @@
 #include "MLPnPsolver.h"
 #include "GeometricTools.h"
 
+#include <algorithm>
+#include <chrono>
 #include <iostream>
 
 #include <mutex>
@@ -1671,7 +1673,7 @@ void Tracking::PreintegrateIMU()
             }
         }
         if(bSleep)
-            usleep(500);
+            std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 
     const int n = mvImuFromLastFrame.size()-1;
@@ -1798,7 +1800,7 @@ void Tracking::Track()
     {
         std::cout << "Tracking: Waiting to the next step" << std::endl;
         while(!mbStep && bStepByStep)
-            usleep(500);
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
         mbStep = false;
     }
 
@@ -3780,13 +3782,6 @@ void Tracking::Reset(bool bLocMap)
 {
     Verbose::PrintMess("System Reseting", Verbose::VERBOSITY_NORMAL);
 
-    if(mpViewer)
-    {
-        mpViewer->RequestStop();
-        while(!mpViewer->isStopped())
-            usleep(3000);
-    }
-
     // Reset Local Mapping
     if (!bLocMap)
     {
@@ -3831,8 +3826,9 @@ void Tracking::Reset(bool bLocMap)
     mpLastKeyFrame = static_cast<KeyFrame*>(NULL);
     mvIniMatches.clear();
 
-    if(mpViewer)
-        mpViewer->Release();
+    for (auto it = std::begin(mEvent_Handlers); it != std::end(mEvent_Handlers); ++it) {
+        (*it)->handleTrackingReset();
+    }
 
     Verbose::PrintMess("   End reseting! ", Verbose::VERBOSITY_NORMAL);
 }
@@ -3840,12 +3836,6 @@ void Tracking::Reset(bool bLocMap)
 void Tracking::ResetActiveMap(bool bLocMap)
 {
     Verbose::PrintMess("Active map Reseting", Verbose::VERBOSITY_NORMAL);
-    if(mpViewer)
-    {
-        mpViewer->RequestStop();
-        while(!mpViewer->isStopped())
-            usleep(3000);
-    }
 
     Map* pMap = mpAtlas->GetCurrentMap();
 
@@ -3922,8 +3912,9 @@ void Tracking::ResetActiveMap(bool bLocMap)
 
     mbVelocity = false;
 
-    if(mpViewer)
-        mpViewer->Release();
+    for (auto it = std::begin(mEvent_Handlers); it != std::end(mEvent_Handlers); ++it) {
+        (*it)->handleTrackingResetActiveMap();
+    }
 
     Verbose::PrintMess("   End reseting! ", Verbose::VERBOSITY_NORMAL);
 }
@@ -4010,7 +4001,7 @@ void Tracking::UpdateFrameIMU(const float s, const IMU::Bias &b, KeyFrame* pCurr
 
     while(!mCurrentFrame.imuIsPreintegrated())
     {
-        usleep(500);
+        std::this_thread::sleep_for(std::chrono::microseconds(500));
     }
 
 
@@ -4081,6 +4072,25 @@ void Tracking::SaveSubTrajectory(string strNameFile_frames, string strNameFile_k
 float Tracking::GetImageScale()
 {
     return mImageScale;
+}
+
+bool Tracking::addSLAMEventHandler(SLAMEventHandler* h) {
+    if (std::find(mEvent_Handlers.begin(), mEvent_Handlers.end(), h) == mEvent_Handlers.end()) {
+        mEvent_Handlers.push_back(h);
+        return true;
+    }
+
+    return false;
+}
+
+bool Tracking::removeSLAMEventHandler(SLAMEventHandler* h) {
+    mEvent_Handlers.erase(std::remove(mEvent_Handlers.begin(), mEvent_Handlers.end(), h), mEvent_Handlers.end());
+    return true;
+}
+
+bool Tracking::clearSLAMEventHandlers() {
+    mEvent_Handlers.clear();
+    return true;
 }
 
 #ifdef REGISTER_LOOP

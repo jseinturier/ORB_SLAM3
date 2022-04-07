@@ -20,6 +20,7 @@
 #define CONFIG_H
 
 #if defined(_WINDOWS) || defined(_WIN32) || defined(_WIN64)
+  #define NONMINMAX 1 // Avoid std::min / std::max clash
   #include<windows.h>
 #else
   #include <unistd.h>

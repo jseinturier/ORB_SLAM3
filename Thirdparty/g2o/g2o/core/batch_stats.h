@@ -69,7 +69,7 @@ namespace g2o {
     size_t hessianLandmarkDimension;  ///< dimension of the landmark matrix in Schur
     size_t choleskyNNZ;               ///< number of non-zeros in the cholesky factor
 
-    static G2OBatchStatistics* globalStats() {return _globalStats;}
+    static inline G2OBatchStatistics* globalStats() {return _globalStats;}
     static void setGlobalStats(G2OBatchStatistics* b);
     protected:
     static G2OBatchStatistics* _globalStats;

@@ -25,10 +25,11 @@
 
 #include "CameraModels/GeometricCamera.h"
 
-#if defined(WIN32)
-#include <windows.h>
+#if defined(WIN32) ||defined(_WIN32) || defined(WINDOWS) || defined(_WINDOWS)
+  #define NONMINMAX 1 // Avoid std::min / std::max clash
+  #include <windows.h>
 #else
-#include <unistd.h>
+  #include <unistd.h>
 #endif
 
 #include <stdio.h>

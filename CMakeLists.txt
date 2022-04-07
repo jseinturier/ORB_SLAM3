@@ -12,11 +12,6 @@ ENDIF()
 
 MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W2 -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2 -O3")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
-
 #######
 # C++ Configuration
 #######
@@ -29,9 +24,19 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 # MSVC FIX FOR C++17 MACROS
 if(MSVC)
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W2 /Ox")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /Ox")
+
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus -DUNICODE")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_HAS_STD_BYTE=0") # Avoid STL byte error on MSVC
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_HAS_STD_BYTE=0 /DNOMINMAX=1") # Avoid STL byte error on MSVC
 else()
+
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W2 -O3")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W2 -O3")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+
   # Check C++11 or C++0x support
   include(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -99,7 +104,6 @@ src/Optimizer.cc
 src/Frame.cc
 src/KeyFrameDatabase.cc
 src/Sim3Solver.cc
-src/Viewer.cc
 src/ImuTypes.cc
 src/G2oTypes.cc
 src/CameraModels/Pinhole.cpp
@@ -127,7 +131,6 @@ include/Optimizer.h
 include/Frame.h
 include/KeyFrameDatabase.h
 include/Sim3Solver.h
-include/Viewer.h
 include/ImuTypes.h
 include/G2oTypes.h
 include/CameraModels/GeometricCamera.h

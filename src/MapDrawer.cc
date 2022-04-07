@@ -358,25 +358,4 @@ void MapDrawer::SetCurrentCameraPose(const Sophus::SE3f &Tcw)
     unique_lock<mutex> lock(mMutexCamera);
     mCameraPose = Tcw.inverse();
 }
-
-void MapDrawer::GetCurrentOpenGLCameraMatrix(cv::Mat &M, cv::Mat &MOw)
-{
-    Eigen::Matrix4f Twc;
-    {
-        unique_lock<mutex> lock(mMutexCamera);
-        Twc = mCameraPose.matrix();
-    }
-
-    for (int i = 0; i<4; i++) {
-        M.m[4*i] = Twc(0,i);
-        M.m[4*i+1] = Twc(1,i);
-        M.m[4*i+2] = Twc(2,i);
-        M.m[4*i+3] = Twc(3,i);
-    }
-
-    MOw.SetIdentity();
-    MOw.m[12] = Twc(0,3);
-    MOw.m[13] = Twc(1,3);
-    MOw.m[14] = Twc(2,3);
-}
 } //namespace ORB_SLAM

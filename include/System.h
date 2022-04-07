@@ -21,10 +21,11 @@
 #define SYSTEM_H
 
 
-#if defined(WIN32)
-#include <windows.h>
+#if defined(WIN32) ||defined(_WIN32) || defined(WINDOWS) || defined(_WINDOWS)
+  #define NONMINMAX 1 // Avoid std::min / std::max clash
+  #include <windows.h>
 #else
-#include <unistd.h>
+  #include <unistd.h>
 #endif
 
 #include<stdio.h>
@@ -41,10 +42,9 @@
 #include "LoopClosing.h"
 #include "KeyFrameDatabase.h"
 #include "ORBVocabulary.h"
-#include "Viewer.h"
 #include "ImuTypes.h"
 #include "Settings.h"
-
+#include "SLAMEventHandler.hpp"
 
 namespace ORB_SLAM3
 {
@@ -191,6 +191,11 @@ public:
 
     float GetImageScale();
 
+    // Event handling
+    bool addSLAMEventHandler(SLAMEventHandler* h);
+    bool removeSLAMEventHandler(SLAMEventHandler* h);
+    bool clearSLAMEventHandlers();
+
 #ifdef REGISTER_TIMES
     void InsertRectTime(double& time);
     void InsertResizeTime(double& time);
@@ -201,8 +206,6 @@ private:
 
     void SaveAtlas(int type);
     bool LoadAtlas(int type);
-
-    string CalculateCheckSum(string filename, int type);
 
     // Input sensor
     eSensor mSensor;
@@ -267,6 +270,9 @@ private:
     string mStrVocabularyFilePath;
 
     Settings* settings_;
+
+    // Event handling
+    std::vector<SLAMEventHandler*> mEvent_Handlers;
 };
 
 }// namespace ORB_SLAM

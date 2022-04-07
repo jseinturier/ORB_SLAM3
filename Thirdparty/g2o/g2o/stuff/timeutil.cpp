@@ -27,9 +27,10 @@
 #include "timeutil.h"
 #include <iostream>
 
-#ifdef _WINDOWS
-#include <time.h>
-#include <windows.h>
+#if defined(WIN32) ||defined(_WIN32) || defined(WINDOWS) || defined(_WINDOWS)
+  #define NONMINMAX 1 // Avoid std::min / std::max clash
+  #include <time.h>
+  #include <windows.h>
 #endif
 
 #ifdef UNIX

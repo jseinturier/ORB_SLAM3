@@ -47,7 +47,6 @@ public:
     void DrawCurrentCamera(cv::Mat &Twc);
     void SetCurrentCameraPose(const Sophus::SE3f &Tcw);
     void SetReferenceKeyFrame(KeyFrame *pKF);
-    void GetCurrentOpenGLCameraMatrix(cv::Mat &M, cv::Mat &MOw);
 
 private:
 

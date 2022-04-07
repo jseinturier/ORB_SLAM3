@@ -23,7 +23,6 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
-#include "Viewer.h"
 #include "FrameDrawer.h"
 #include "Atlas.h"
 #include "LocalMapping.h"
@@ -36,6 +35,7 @@
 #include "System.h"
 #include "ImuTypes.h"
 #include "Settings.h"
+#include "SLAMEventHandler.hpp"
 
 #include "GeometricCamera.h"
 
@@ -175,6 +175,10 @@ public:
     vector<MapPoint*> GetLocalMapMPS();
 
     bool mbWriteStats;
+
+    bool addSLAMEventHandler(SLAMEventHandler* h);
+    bool removeSLAMEventHandler(SLAMEventHandler* h);
+    bool clearSLAMEventHandlers();
 
 #ifdef REGISTER_TIMES
     void LocalMapStats2File();
@@ -356,6 +360,9 @@ protected:
     Sophus::SE3f mTlr;
 
     void newParameterLoader(Settings* settings);
+
+    // Event handling
+    std::vector<SLAMEventHandler*> mEvent_Handlers;
 
 #ifdef REGISTER_LOOP
     bool Stop();
