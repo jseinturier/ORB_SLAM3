@@ -35,11 +35,8 @@
 #include <limits>
 #include <cstddef>
 
-#ifdef _MSC_VER
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-#endif
+
 
 
 /** @addtogroup graph */
