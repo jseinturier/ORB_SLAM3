@@ -140,5 +140,4 @@ target_link_libraries(${PROJECT_NAME} g2o)
 target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
--lcrypto
 )
