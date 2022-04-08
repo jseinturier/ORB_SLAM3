@@ -65,7 +65,7 @@ ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
 ${PROJECT_SOURCE_DIR}/include/CameraModels
 ${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
-${PROJECT_SOURCE_DIR}/Thirdparty/DBow2
+${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o
 ${EIGEN3_INCLUDE_DIR}
 )
