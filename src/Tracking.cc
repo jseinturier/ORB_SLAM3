@@ -1796,6 +1796,10 @@ void Tracking::ResetFrameIMU()
 void Tracking::Track()
 {
 
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    std::cout << "Track" << std::endl;
+#endif
+
     if (bStepByStep)
     {
         std::cout << "Tracking: Waiting to the next step" << std::endl;
@@ -1819,6 +1823,13 @@ void Tracking::Track()
 
     if(mState!=NO_IMAGES_YET)
     {
+
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+        std::cout << "  Image available" << std::endl;
+        std::cout << "  Current frame timestamp: " << mCurrentFrame.mTimeStamp << std::endl;
+        std::cout << "  Last frame timestamp   : " << mLastFrame.mTimeStamp << std::endl;
+#endif
+
         if(mLastFrame.mTimeStamp>mCurrentFrame.mTimeStamp)
         {
             cerr << "ERROR: Frame with a timestamp older than previous frame detected!" << endl;
@@ -1856,7 +1867,11 @@ void Tracking::Track()
 
         }
     }
-
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    else {
+        std::cout << "  No image available." << std::endl;
+    }
+#endif
 
     if ((mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD) && mpLastKeyFrame)
         mCurrentFrame.SetNewBias(mpLastKeyFrame->GetImuBias());
@@ -1946,12 +1961,16 @@ void Tracking::Track()
 
                 if((!mbVelocity && !pCurrentMap->isImuInitialized()) || mCurrentFrame.mnId<mnLastRelocFrameId+2)
                 {
-                    Verbose::PrintMess("TRACK: Track with respect to the reference KF ", Verbose::VERBOSITY_DEBUG);
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+                    std::cout << "TRACK: Track with respect to the reference KF " << std::endl;
+#endif
                     bOK = TrackReferenceKeyFrame();
                 }
                 else
                 {
-                    Verbose::PrintMess("TRACK: Track with motion model", Verbose::VERBOSITY_DEBUG);
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+                    std::cout << "TRACK: Track with motion model" << std::endl;
+#endif                   
                     bOK = TrackWithMotionModel();
                     if(!bOK)
                         bOK = TrackReferenceKeyFrame();
@@ -2040,8 +2059,11 @@ void Tracking::Track()
             // Localization Mode: Local Mapping is deactivated (TODO Not available in inertial mode)
             if(mState==LOST)
             {
-                if(mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD)
-                    Verbose::PrintMess("IMU. State LOST", Verbose::VERBOSITY_NORMAL);
+                if (mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD) {
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+                    std::cout << "IMU. State LOST" << std::endl;
+#endif
+                }
                 bOK = Relocalization();
             }
             else
@@ -2951,9 +2973,19 @@ bool Tracking::TrackWithMotionModel()
 bool Tracking::TrackLocalMap()
 {
 
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    std::cout << "Track local map" << std::endl;
+#endif
+
+    int poseEstimation;
+
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
     mTrackedFr++;
+
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    std::cout << "  mTrackedFr: " << mTrackedFr << std::endl;
+#endif
 
     UpdateLocalMap();
     SearchLocalPoints();
@@ -2968,15 +3000,29 @@ bool Tracking::TrackLocalMap()
                 aux2++;
         }
 
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    std::cout << "  aux1: " << aux1 << ", aux2: " << aux2 << std::endl;
+#endif
+
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+    std::cout << "  IMU initialized: " << (mpAtlas->isImuInitialized()?"YES":"NO") << std::endl;
+#endif
+
     int inliers;
-    if (!mpAtlas->isImuInitialized())
-        Optimizer::PoseOptimization(&mCurrentFrame);
+    if (!mpAtlas->isImuInitialized()) {
+        poseEstimation = Optimizer::PoseOptimization(&mCurrentFrame);
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+        std::cout << "  PoseOptimization: " << poseEstimation << std::endl;
+#endif
+    }
     else
     {
         if(mCurrentFrame.mnId<=mnLastRelocFrameId+mnFramesToResetIMU)
         {
-            Verbose::PrintMess("TLM: PoseOptimization ", Verbose::VERBOSITY_DEBUG);
-            Optimizer::PoseOptimization(&mCurrentFrame);
+            poseEstimation = Optimizer::PoseOptimization(&mCurrentFrame);
+#if defined(DEBUG) || defined(_DEBUG) || defined (ORBSLAM_DEBUG)
+            std::cout << "  PoseOptimization: " << poseEstimation << std::endl;
+#endif
         }
         else
         {
@@ -3029,6 +3075,9 @@ bool Tracking::TrackLocalMap()
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     mpLocalMapper->mnMatchesInliers=mnMatchesInliers;
+
+    std::cout << "Matches inliers: " << mnMatchesInliers << std::endl;
+
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
         return false;
 
@@ -3047,6 +3096,7 @@ bool Tracking::TrackLocalMap()
     }
     else if (mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD)
     {
+
         if(mnMatchesInliers<15)
         {
             return false;

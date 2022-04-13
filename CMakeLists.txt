@@ -143,3 +143,12 @@ target_link_libraries(${PROJECT_NAME}
 ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 )
+
+add_executable(sample_euroc_stereo 
+sample/src/stereo_euroc.cc)
+
+target_link_libraries(sample_euroc_stereo
+${OpenCV_LIBS}
+${EIGEN3_LIBS}
+${PROJECT_NAME}
+)

@@ -39,12 +39,12 @@ namespace ORB_SLAM3 {
     }
 
     public:
-        KannalaBrandt8() : precision(1e-6) {
+        KannalaBrandt8() : precision(1e-6f) {
             mvParameters.resize(8);
             mnId=nNextId++;
             mnType = CAM_FISHEYE;
         }
-        KannalaBrandt8(const std::vector<float> _vParameters) : GeometricCamera(_vParameters), precision(1e-6), mvLappingArea(2,0) ,tvr(nullptr) {
+        KannalaBrandt8(const std::vector<float> _vParameters) : GeometricCamera(_vParameters), precision(1e-6f), mvLappingArea(2,0) ,tvr(nullptr) {
             assert(mvParameters.size() == 8);
             mnId=nNextId++;
             mnType = CAM_FISHEYE;

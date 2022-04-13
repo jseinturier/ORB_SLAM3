@@ -912,11 +912,11 @@ void LocalMapping::KeyFrameCulling()
 
     float redundant_th;
     if(!mbInertial)
-        redundant_th = 0.9;
+        redundant_th = 0.9f;
     else if (mbMonocular)
-        redundant_th = 0.9;
+        redundant_th = 0.9f;
     else
-        redundant_th = 0.5;
+        redundant_th = 0.5f;
 
     const bool bInitImu = mpAtlas->isImuInitialized();
     int count=0;

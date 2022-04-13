@@ -102,8 +102,8 @@ namespace ORB_SLAM3 {
 
         int nFeatures() {return nFeatures_;}
         int nLevels() {return nLevels_;}
-        float initThFAST() {return initThFAST_;}
-        float minThFAST() {return minThFAST_;}
+        int initThFAST() {return initThFAST_;}
+        int minThFAST() {return minThFAST_;}
         float scaleFactor() {return scaleFactor_;}
 
         float keyFrameSize() {return keyFrameSize_;}
