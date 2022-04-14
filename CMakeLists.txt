@@ -53,6 +53,10 @@ list(APPEND flags "-fPIC")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
+#if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+#  set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/install" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
+#endif()
+
 if(NOT DEFINED BUILD_SHARED_LIBS)
 set(BUILD_SHARED_LIBS "true" CACHE BOOL "Build shared libraries")
 endif()
@@ -66,41 +70,6 @@ MESSAGE("OPENCV VERSION:")
 MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
-
-set(ORBSLAM3_HEADER
-${PROJECT_SOURCE_DIR}/include/System.h
-${PROJECT_SOURCE_DIR}/include/Tracking.h
-${PROJECT_SOURCE_DIR}/include/LocalMapping.h
-${PROJECT_SOURCE_DIR}/include/LoopClosing.h
-${PROJECT_SOURCE_DIR}/include/ORBextractor.h
-${PROJECT_SOURCE_DIR}/include/ORBmatcher.h
-${PROJECT_SOURCE_DIR}/include/FrameDrawer.h
-${PROJECT_SOURCE_DIR}/include/Converter.h
-${PROJECT_SOURCE_DIR}/include/MapPoint.h
-${PROJECT_SOURCE_DIR}/include/KeyFrame.h
-${PROJECT_SOURCE_DIR}/include/Atlas.h
-${PROJECT_SOURCE_DIR}/include/Map.h
-${PROJECT_SOURCE_DIR}/include/MapDrawer.h
-${PROJECT_SOURCE_DIR}/include/Optimizer.h
-${PROJECT_SOURCE_DIR}/include/Frame.h
-${PROJECT_SOURCE_DIR}/include/KeyFrameDatabase.h
-${PROJECT_SOURCE_DIR}/include/Sim3Solver.h
-${PROJECT_SOURCE_DIR}/include/ImuTypes.h
-${PROJECT_SOURCE_DIR}/include/G2oTypes.h
-${PROJECT_SOURCE_DIR}/include/CameraModels/GeometricCamera.h
-${PROJECT_SOURCE_DIR}/include/CameraModels/Pinhole.h
-${PROJECT_SOURCE_DIR}/include/CameraModels/KannalaBrandt8.h
-${PROJECT_SOURCE_DIR}/include/OptimizableTypes.h
-${PROJECT_SOURCE_DIR}/include/MLPnPsolver.h
-${PROJECT_SOURCE_DIR}/include/GeometricTools.h
-${PROJECT_SOURCE_DIR}/include/TwoViewReconstruction.h
-${PROJECT_SOURCE_DIR}/include/SerializationUtils.h
-${PROJECT_SOURCE_DIR}/include/Config.h
-${PROJECT_SOURCE_DIR}/include/Settings.h
-${PROJECT_SOURCE_DIR}/include/SLAMEventHandler.hpp
-${PROJECT_SOURCE_DIR}/include/CameraModels/GeometricCamera.h
-${PROJECT_SOURCE_DIR}/include/CameraModels/KannalaBrandt8.h
-${PROJECT_SOURCE_DIR}/include/CameraModels/Pinhole.h)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -125,7 +94,6 @@ endif(BUILD_SHARED_LIBS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${ORBSLAM3_HEADER}")
 
 target_sources(${PROJECT_NAME} 
 PRIVATE
@@ -180,4 +148,5 @@ ${PROJECT_NAME}
 )
 
 install(TARGETS ${PROJECT_NAME} RUNTIME LIBRARY PUBLIC_HEADER)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(TARGETS sample_euroc_stereo)
