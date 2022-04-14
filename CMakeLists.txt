@@ -125,7 +125,7 @@ endif(BUILD_SHARED_LIBS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
-#set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${ORBSLAM3_HEADER}")
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${ORBSLAM3_HEADER}")
 
 target_sources(${PROJECT_NAME} 
 PRIVATE
