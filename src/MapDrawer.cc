@@ -357,5 +357,7 @@ void MapDrawer::SetCurrentCameraPose(const Sophus::SE3f &Tcw)
 {
     unique_lock<mutex> lock(mMutexCamera);
     mCameraPose = Tcw.inverse();
+
+    std::cout << "[MapDrawer][SetCurrentCameraPose()] camera pose: " << mCameraPose.matrix() << std::endl;
 }
 } //namespace ORB_SLAM

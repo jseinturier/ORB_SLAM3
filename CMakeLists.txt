@@ -6,6 +6,9 @@ project(ORB_SLAM3)
 # the package
 cmake_policy(SET CMP0074 NEW)
 
+# Enable relative pathes within target_sources
+cmake_policy(SET CMP0076 NEW)
+
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
@@ -50,6 +53,10 @@ list(APPEND flags "-fPIC")
 
 LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
+if(NOT DEFINED BUILD_SHARED_LIBS)
+set(BUILD_SHARED_LIBS "true" CACHE BOOL "Build shared libraries")
+endif()
+
 find_package(OpenCV 4.4)
    if(NOT OpenCV_FOUND)
       message(FATAL_ERROR "OpenCV > 4.4 not found.")
@@ -72,7 +79,17 @@ ${EIGEN3_INCLUDE_DIR}
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
-add_library(${PROJECT_NAME} SHARED
+# Library type according to BUILD_SHARED_LIBS
+# BUILD_SHARED_LIBS is true then shared library is built 
+# otherwise a static library is build
+if (BUILD_SHARED_LIBS)
+  add_library(${PROJECT_NAME} SHARED)
+else()
+  add_library(${PROJECT_NAME} STATIC)
+endif(BUILD_SHARED_LIBS)
+
+target_sources(${PROJECT_NAME}
+PRIVATE
 src/System.cc
 src/Tracking.cc
 src/LocalMapping.cc
@@ -100,6 +117,7 @@ src/GeometricTools.cc
 src/TwoViewReconstruction.cc
 src/Config.cc
 src/Settings.cc
+PUBLIC
 include/System.h
 include/Tracking.h
 include/LocalMapping.h
@@ -152,3 +170,6 @@ ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 ${PROJECT_NAME}
 )
+
+install(TARGETS ${PROJECT_NAME})
+install(TARGETS sample_euroc_stereo)
