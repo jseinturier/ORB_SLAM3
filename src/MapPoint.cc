@@ -331,6 +331,8 @@ void MapPoint::ComputeDistinctiveDescriptors()
     // Retrieve all observed descriptors
     vector<cv::Mat> vDescriptors;
 
+    std::cout << "** [MapPoint] mbBad:" << (mbBad?"YES":"NO") << std::endl;
+
     map<KeyFrame*,tuple<int,int>> observations;
 
     {
@@ -339,6 +341,8 @@ void MapPoint::ComputeDistinctiveDescriptors()
             return;
         observations=mObservations;
     }
+
+    std::cout << "** [MapPoint] Observations:" << observations.size() << ", empty: " << (observations.empty() ? "YES" : "NO") << std::endl;
 
     if(observations.empty())
         return;
@@ -361,6 +365,8 @@ void MapPoint::ComputeDistinctiveDescriptors()
             }
         }
     }
+
+    std::cout << "** [MapPoint] vDescriptors.size(): " << vDescriptors.size() << std::endl;
 
     if(vDescriptors.empty())
         return;

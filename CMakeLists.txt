@@ -67,8 +67,7 @@ MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
 
-set(HEADER
-${HEADER}
+set(ORBSLAM3_HEADER
 ${PROJECT_SOURCE_DIR}/include/System.h
 ${PROJECT_SOURCE_DIR}/include/Tracking.h
 ${PROJECT_SOURCE_DIR}/include/LocalMapping.h
@@ -98,7 +97,10 @@ ${PROJECT_SOURCE_DIR}/include/TwoViewReconstruction.h
 ${PROJECT_SOURCE_DIR}/include/SerializationUtils.h
 ${PROJECT_SOURCE_DIR}/include/Config.h
 ${PROJECT_SOURCE_DIR}/include/Settings.h
-${PROJECT_SOURCE_DIR}/include/SLAMEventHandler.hpp)
+${PROJECT_SOURCE_DIR}/include/SLAMEventHandler.hpp
+${PROJECT_SOURCE_DIR}/include/CameraModels/GeometricCamera.h
+${PROJECT_SOURCE_DIR}/include/CameraModels/KannalaBrandt8.h
+${PROJECT_SOURCE_DIR}/include/CameraModels/Pinhole.h)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -123,7 +125,7 @@ endif(BUILD_SHARED_LIBS)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
-set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER}")
+#set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${ORBSLAM3_HEADER}")
 
 target_sources(${PROJECT_NAME} 
 PRIVATE
@@ -177,5 +179,5 @@ ${EIGEN3_LIBS}
 ${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME})
+install(TARGETS ${PROJECT_NAME} RUNTIME LIBRARY PUBLIC_HEADER)
 install(TARGETS sample_euroc_stereo)
