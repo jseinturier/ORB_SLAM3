@@ -67,6 +67,39 @@ MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
 
+set(HEADER
+${HEADER}
+${PROJECT_SOURCE_DIR}/include/System.h
+${PROJECT_SOURCE_DIR}/include/Tracking.h
+${PROJECT_SOURCE_DIR}/include/LocalMapping.h
+${PROJECT_SOURCE_DIR}/include/LoopClosing.h
+${PROJECT_SOURCE_DIR}/include/ORBextractor.h
+${PROJECT_SOURCE_DIR}/include/ORBmatcher.h
+${PROJECT_SOURCE_DIR}/include/FrameDrawer.h
+${PROJECT_SOURCE_DIR}/include/Converter.h
+${PROJECT_SOURCE_DIR}/include/MapPoint.h
+${PROJECT_SOURCE_DIR}/include/KeyFrame.h
+${PROJECT_SOURCE_DIR}/include/Atlas.h
+${PROJECT_SOURCE_DIR}/include/Map.h
+${PROJECT_SOURCE_DIR}/include/MapDrawer.h
+${PROJECT_SOURCE_DIR}/include/Optimizer.h
+${PROJECT_SOURCE_DIR}/include/Frame.h
+${PROJECT_SOURCE_DIR}/include/KeyFrameDatabase.h
+${PROJECT_SOURCE_DIR}/include/Sim3Solver.h
+${PROJECT_SOURCE_DIR}/include/ImuTypes.h
+${PROJECT_SOURCE_DIR}/include/G2oTypes.h
+${PROJECT_SOURCE_DIR}/include/CameraModels/GeometricCamera.h
+${PROJECT_SOURCE_DIR}/include/CameraModels/Pinhole.h
+${PROJECT_SOURCE_DIR}/include/CameraModels/KannalaBrandt8.h
+${PROJECT_SOURCE_DIR}/include/OptimizableTypes.h
+${PROJECT_SOURCE_DIR}/include/MLPnPsolver.h
+${PROJECT_SOURCE_DIR}/include/GeometricTools.h
+${PROJECT_SOURCE_DIR}/include/TwoViewReconstruction.h
+${PROJECT_SOURCE_DIR}/include/SerializationUtils.h
+${PROJECT_SOURCE_DIR}/include/Config.h
+${PROJECT_SOURCE_DIR}/include/Settings.h
+${PROJECT_SOURCE_DIR}/include/SLAMEventHandler.hpp)
+
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/include
@@ -88,7 +121,11 @@ else()
   add_library(${PROJECT_NAME} STATIC)
 endif(BUILD_SHARED_LIBS)
 
-target_sources(${PROJECT_NAME}
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
+set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${HEADER}")
+
+target_sources(${PROJECT_NAME} 
 PRIVATE
 src/System.cc
 src/Tracking.cc
@@ -116,38 +153,7 @@ src/MLPnPsolver.cpp
 src/GeometricTools.cc
 src/TwoViewReconstruction.cc
 src/Config.cc
-src/Settings.cc
-PUBLIC
-include/System.h
-include/Tracking.h
-include/LocalMapping.h
-include/LoopClosing.h
-include/ORBextractor.h
-include/ORBmatcher.h
-include/FrameDrawer.h
-include/Converter.h
-include/MapPoint.h
-include/KeyFrame.h
-include/Atlas.h
-include/Map.h
-include/MapDrawer.h
-include/Optimizer.h
-include/Frame.h
-include/KeyFrameDatabase.h
-include/Sim3Solver.h
-include/ImuTypes.h
-include/G2oTypes.h
-include/CameraModels/GeometricCamera.h
-include/CameraModels/Pinhole.h
-include/CameraModels/KannalaBrandt8.h
-include/OptimizableTypes.h
-include/MLPnPsolver.h
-include/GeometricTools.h
-include/TwoViewReconstruction.h
-include/SerializationUtils.h
-include/Config.h
-include/Settings.h
-include/SLAMEventHandler.hpp)
+src/Settings.cc)
 
 # Dependecy to DBoW2
 add_subdirectory(Thirdparty/DBoW2)

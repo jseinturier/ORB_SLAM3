@@ -362,8 +362,6 @@ void MapPoint::ComputeDistinctiveDescriptors()
         }
     }
 
-    std::cout << "[MapPoint] vDescriptors.size(): " << vDescriptors.size() << std::endl;
-
     if(vDescriptors.empty())
         return;
 
