@@ -3076,8 +3076,6 @@ bool Tracking::TrackLocalMap()
     // More restrictive if there was a relocalization recently
     mpLocalMapper->mnMatchesInliers=mnMatchesInliers;
 
-    std::cout << "Matches inliers: " << mnMatchesInliers << std::endl;
-
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
         return false;
 
