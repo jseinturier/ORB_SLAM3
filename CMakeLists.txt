@@ -92,6 +92,8 @@ else()
   add_library(${PROJECT_NAME} STATIC)
 endif(BUILD_SHARED_LIBS)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
+
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
 
