@@ -35,110 +35,9 @@ namespace ORB_SLAM3
 
 */
 
-MapDrawer::MapDrawer(Atlas* pAtlas, const string &strSettingPath, Settings* settings):mpAtlas(pAtlas)
+MapDrawer::MapDrawer(Atlas* pAtlas):mpAtlas(pAtlas)
 {
-    if(settings){
-        newParameterLoader(settings);
-    }
-    else{
-        cv::FileStorage fSettings(strSettingPath, cv::FileStorage::READ);
-        bool is_correct = ParseViewerParamFile(fSettings);
 
-        if(!is_correct)
-        {
-            std::cerr << "**ERROR in the config file, the format is not correct**" << std::endl;
-            try
-            {
-                throw -1;
-            }
-            catch(exception &e)
-            {
-
-            }
-        }
-    }
-}
-
-void MapDrawer::newParameterLoader(Settings *settings) {
-    mKeyFrameSize = settings->keyFrameSize();
-    mKeyFrameLineWidth = settings->keyFrameLineWidth();
-    mGraphLineWidth = settings->graphLineWidth();
-    mPointSize = settings->pointSize();
-    mCameraSize = settings->cameraSize();
-    mCameraLineWidth  = settings->cameraLineWidth();
-}
-
-bool MapDrawer::ParseViewerParamFile(cv::FileStorage &fSettings)
-{
-    bool b_miss_params = false;
-
-    cv::FileNode node = fSettings["Viewer.KeyFrameSize"];
-    if(!node.empty())
-    {
-        mKeyFrameSize = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.KeyFrameSize parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    node = fSettings["Viewer.KeyFrameLineWidth"];
-    if(!node.empty())
-    {
-        mKeyFrameLineWidth = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.KeyFrameLineWidth parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    node = fSettings["Viewer.GraphLineWidth"];
-    if(!node.empty())
-    {
-        mGraphLineWidth = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.GraphLineWidth parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    node = fSettings["Viewer.PointSize"];
-    if(!node.empty())
-    {
-        mPointSize = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.PointSize parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    node = fSettings["Viewer.CameraSize"];
-    if(!node.empty())
-    {
-        mCameraSize = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.CameraSize parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    node = fSettings["Viewer.CameraLineWidth"];
-    if(!node.empty())
-    {
-        mCameraLineWidth = node.real();
-    }
-    else
-    {
-        std::cerr << "*Viewer.CameraLineWidth parameter doesn't exist or is not a real number*" << std::endl;
-        b_miss_params = true;
-    }
-
-    return !b_miss_params;
 }
 
 void MapDrawer::DrawMapPoints()
@@ -179,9 +78,8 @@ void MapDrawer::DrawMapPoints()
     std::cout << "@PTSE" << std::endl;
 }
 
-void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const bool bDrawInertialGraph, const bool bDrawOptLba)
+void MapDrawer::DrawKeyFrames()
 {
-
     std::cout << "[SLAMEventHandler][DrawKeyFrames()] start" << std::endl;
 
     const float &w = mKeyFrameSize;
@@ -344,12 +242,12 @@ void MapDrawer::DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const b
 */
 }
 
-void MapDrawer::DrawCurrentCamera(cv::Mat &Twc)
+void MapDrawer::DrawCurrentCamera(cv::Matx44f& Twc)
 {
-    std::cout << "[SLAMEventHandler][DrawCurrentCamera()] Camera : [" << Twc.at<double>(0, 0) << " " << Twc.at<double>(0, 1) << " " << Twc.at<double>(0, 2) << " " << Twc.at<double>(0, 3) 
-                                                                      << Twc.at<double>(1, 0) << " " << Twc.at<double>(1, 1) << " " << Twc.at<double>(1, 2) << " " << Twc.at<double>(1, 3) 
-                                                                      << Twc.at<double>(2, 0) << " " << Twc.at<double>(2, 1) << " " << Twc.at<double>(2, 2) << " " << Twc.at<double>(2, 3) 
-                                                                      << Twc.at<double>(3, 0) << " " << Twc.at<double>(3, 1) << " " << Twc.at<double>(3, 2) << " " << Twc.at<double>(3, 3) << "]" << std::endl;
+    std::cout << "[SLAMEventHandler][DrawCurrentCamera()] Camera : [" << Twc(0, 0) << " " << Twc(0, 1) << " " << Twc(0, 2) << " " << Twc(0, 3) 
+                                                                      << Twc(1, 0) << " " << Twc(1, 1) << " " << Twc(1, 2) << " " << Twc(1, 3) 
+                                                                      << Twc(2, 0) << " " << Twc(2, 1) << " " << Twc(2, 2) << " " << Twc(2, 3) 
+                                                                      << Twc(3, 0) << " " << Twc(3, 1) << " " << Twc(3, 2) << " " << Twc(3, 3) << "]" << std::endl;
 }
 
 
@@ -358,6 +256,29 @@ void MapDrawer::SetCurrentCameraPose(const Sophus::SE3f &Tcw)
     unique_lock<mutex> lock(mMutexCamera);
     mCameraPose = Tcw.inverse();
 
-    std::cout << "[MapDrawer][SetCurrentCameraPose()] camera pose: " << mCameraPose.matrix() << std::endl;
+    //std::cout << "[MapDrawer][SetCurrentCameraPose()] camera pose: " << mCameraPose.matrix() << std::endl;
 }
+
+void MapDrawer::GetCurrentOpenGLCameraMatrix(cv::Matx44f& M, cv::Matx44f& MOw)
+{
+    Eigen::Matrix4f Twc;
+    {
+        unique_lock<mutex> lock(mMutexCamera);
+        Twc = mCameraPose.matrix();
+    }
+
+    for (size_t row = 0; row < 4; row++) {
+        for (size_t col = 0; col < 4; col++) {
+            M(row, col) = Twc(row, col);
+        }
+    }
+
+    cv::setIdentity(MOw);
+
+    MOw(0, 3) = Twc(0, 3);
+    MOw(0, 3) = Twc(1, 3);
+    MOw(0, 3) = Twc(2, 3);
+}
+
+
 } //namespace ORB_SLAM

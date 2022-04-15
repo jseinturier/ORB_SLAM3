@@ -36,17 +36,30 @@ class MapDrawer
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    MapDrawer(Atlas* pAtlas, const string &strSettingPath, Settings* settings);
+    MapDrawer(Atlas* pAtlas);
 
     void newParameterLoader(Settings* settings);
 
     Atlas* mpAtlas;
 
     void DrawMapPoints();
-    void DrawKeyFrames(const bool bDrawKF, const bool bDrawGraph, const bool bDrawInertialGraph, const bool bDrawOptLba);
-    void DrawCurrentCamera(cv::Mat &Twc);
+    void DrawKeyFrames();
+    void DrawCurrentCamera(cv::Matx44f& Twc);
     void SetCurrentCameraPose(const Sophus::SE3f &Tcw);
     void SetReferenceKeyFrame(KeyFrame *pKF);
+    void GetCurrentOpenGLCameraMatrix(cv::Matx44f& M, cv::Matx44f& MOw);
+
+    inline bool integrate_graph() { return menuShowGraph; };
+    inline void integrate_graph(bool integrate) { menuShowGraph = integrate; };
+
+    inline bool integrate_key_frames() { return menuShowKeyFrames; };
+    inline void integrate_key_frames(bool integrate) { menuShowKeyFrames = integrate; };
+
+    inline bool integrate_intertial_graph() { return menuShowInertialGraph; };
+    inline void integrate_intertial_graph(bool integrate) { menuShowInertialGraph = integrate; };
+
+    inline bool integrate_opt_lba() { return menuShowOptLba; };
+    inline void integrate_opt_lba(bool integrate) { menuShowOptLba = integrate; };
 
 private:
 
@@ -58,6 +71,11 @@ private:
     float mPointSize;
     float mCameraSize;
     float mCameraLineWidth;
+
+    bool menuShowGraph = true;
+    bool menuShowKeyFrames = true;
+    bool menuShowInertialGraph = true;
+    bool menuShowOptLba = true;
 
     Sophus::SE3f mCameraPose;
 

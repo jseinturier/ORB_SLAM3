@@ -96,6 +96,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES DEBUG_POSTFIX "d")
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/processor)
 
 target_sources(${PROJECT_NAME} 
 PRIVATE
@@ -125,7 +126,9 @@ src/MLPnPsolver.cpp
 src/GeometricTools.cc
 src/TwoViewReconstruction.cc
 src/Config.cc
-src/Settings.cc)
+src/Settings.cc
+src/processor/SLAMEventHandler.cc
+src/processor/SLAMProcessor.cc)
 
 # Dependecy to DBoW2
 add_subdirectory(Thirdparty/DBoW2)

@@ -35,8 +35,6 @@
 #include<opencv2/core/core.hpp>
 
 #include "Tracking.h"
-#include "FrameDrawer.h"
-#include "MapDrawer.h"
 #include "Atlas.h"
 #include "LocalMapping.h"
 #include "LoopClosing.h"
@@ -44,7 +42,7 @@
 #include "ORBVocabulary.h"
 #include "ImuTypes.h"
 #include "Settings.h"
-#include "SLAMEventHandler.hpp"
+#include "processor/SLAMEventHandler.hpp"
 
 namespace ORB_SLAM3
 {
@@ -76,9 +74,6 @@ public:
     }
 };
 
-class Viewer;
-class FrameDrawer;
-class MapDrawer;
 class Atlas;
 class Tracking;
 class LocalMapping;
@@ -191,6 +186,11 @@ public:
 
     float GetImageScale();
 
+    //Accessor
+    inline Atlas* atlas() { return mpAtlas; };
+
+    inline Tracking* tracker() { return mpTracker; };
+
     // Event handling
     bool addSLAMEventHandler(SLAMEventHandler* h);
     bool removeSLAMEventHandler(SLAMEventHandler* h);
@@ -231,12 +231,6 @@ private:
     // Loop Closer. It searches loops with every new keyframe. If there is a loop it performs
     // a pose graph optimization and full bundle adjustment (in a new thread) afterwards.
     LoopClosing* mpLoopCloser;
-
-    // The viewer draws the map and the current camera pose. It uses Pangolin.
-    Viewer* mpViewer;
-
-    FrameDrawer* mpFrameDrawer;
-    MapDrawer* mpMapDrawer;
 
     // System threads: Local Mapping, Loop Closing, Viewer.
     // The Tracking thread "lives" in the main execution thread that creates the System object.
