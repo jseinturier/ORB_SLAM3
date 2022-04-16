@@ -47,6 +47,8 @@
 namespace ORB_SLAM3
 {
 
+class SLAMEventHandler;
+
 class Verbose
 {
 public:

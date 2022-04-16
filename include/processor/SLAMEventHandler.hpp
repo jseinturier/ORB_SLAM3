@@ -8,6 +8,8 @@ namespace ORB_SLAM3
 
 	class Tracking;
 
+	class System;
+
 	class SLAMEventHandler {
 	public:
 		void handleTrackingResetActiveMap() { handleTrackingResetActiveMapImpl(); };

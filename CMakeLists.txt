@@ -143,15 +143,27 @@ ${OpenCV_LIBS}
 ${EIGEN3_LIBS}
 )
 
-add_executable(sample_euroc_stereo 
-sample/src/stereo_euroc.cc)
-
-target_link_libraries(sample_euroc_stereo
-${OpenCV_LIBS}
-${EIGEN3_LIBS}
-${PROJECT_NAME}
-)
-
 install(TARGETS ${PROJECT_NAME} RUNTIME LIBRARY PUBLIC_HEADER)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(TARGETS sample_euroc_stereo)
+
+
+# Examples
+if(NOT DEFINED BUILD_EXAMPLES)
+set(BUILD_EXAMPLES "true" CACHE BOOL "Build examples")
+endif()
+
+if(BUILD_EXAMPLES)
+
+  # EuRoc sample
+  add_executable(sample_euroc_stereo sample/euroc/src/stereo_euroc.cc)
+
+  target_link_libraries(sample_euroc_stereo
+  ${OpenCV_LIBS}
+  ${EIGEN3_LIBS}
+  ${PROJECT_NAME}
+  )
+
+  install(TARGETS sample_euroc_stereo)
+  install(DIRECTORY ${PROJECT_SOURCE_DIR}/sample/euroc/share DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+endif(BUILD_EXAMPLES)
