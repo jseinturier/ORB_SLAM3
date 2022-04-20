@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     SLAM.addSLAMEventHandler(&processor);
 
     // Start the processor
-    std::thread processor_thread(&ORB_SLAM3::SLAMProcessor::run, &processor);
+    //std::thread processor_thread(&ORB_SLAM3::SLAMProcessor::run, &processor);
 
     cv::Mat imLeft, imRight;
     for (seq = 0; seq < num_seq; seq++)
@@ -176,11 +176,11 @@ int main(int argc, char** argv)
     }
     // Stop all threads
     SLAM.Shutdown();
-
+/*
     if (processor_thread.joinable()) {
         processor_thread.join();
     }
-
+*/
     // Save camera trajectory
     if (bFileName)
     {

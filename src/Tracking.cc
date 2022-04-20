@@ -2212,12 +2212,12 @@ void Tracking::Track()
 
         // Update drawer
         for (const auto& handler : mEvent_Handlers) {
-            handler->handleTrackingUpdate(this);
+           handler->handleTrackingUpdate(this);
         }
 
         if (mCurrentFrame.isSet()) {
             for (const auto& handler : mEvent_Handlers) {
-                handler->handleCameraPoseUpdate(this, mCurrentFrame.GetPose());
+                handler->handleFrameUpdate(this, &mCurrentFrame);
             }
         }
 
@@ -2236,7 +2236,7 @@ void Tracking::Track()
 
             if (mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD) {
                 for (const auto& handler : mEvent_Handlers) {
-                    handler->handleCameraPoseUpdate(this, mCurrentFrame.GetPose());
+                    handler->handleFrameUpdate(this, &mCurrentFrame);
                 }
             }
 
@@ -2461,7 +2461,7 @@ void Tracking::StereoInitialization()
         mpAtlas->GetCurrentMap()->mvpKeyFrameOrigins.push_back(pKFini);
 
         for (const auto& handler : mEvent_Handlers) {
-            handler->handleCameraPoseUpdate(this, mCurrentFrame.GetPose());
+            handler->handleFrameUpdate(this, &mCurrentFrame);
         }
 
         mState=OK;
@@ -2674,7 +2674,7 @@ void Tracking::CreateInitialMapMonocular()
     mpAtlas->SetReferenceMapPoints(mvpLocalMapPoints);
 
     for (const auto& handler : mEvent_Handlers) {
-        handler->handleCameraPoseUpdate(this, pKFcur->GetPose());
+        handler->handleKeyFrameUpdate(this, pKFcur);
     }
 
     mpAtlas->GetCurrentMap()->mvpKeyFrameOrigins.push_back(pKFini);

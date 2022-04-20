@@ -57,7 +57,8 @@ void MapDrawer::DrawMapPoints()
         return;
 
     
-    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - All" << std::endl;
+    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - All: "<< vpMPs.size() << " points" << std::endl;
+/*
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
     {
         if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
@@ -65,8 +66,9 @@ void MapDrawer::DrawMapPoints()
         Eigen::Matrix<float,3,1> pos = vpMPs[i]->GetWorldPos();
         std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
     }
-   
-    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - Reference" << std::endl;
+*/   
+    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - Reference: " << spRefMPs .size() <<" points" << std::endl;
+/*
     for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
     {
         if((*sit)->isBad())
@@ -75,6 +77,7 @@ void MapDrawer::DrawMapPoints()
         std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
 
     }
+*/
     std::cout << "@PTSE" << std::endl;
 }
 
@@ -155,6 +158,10 @@ void MapDrawer::DrawKeyFrames()
         {
             std::cout << pParent->mnId;
         }
+        else {
+            std::cout << "N";
+        }
+        std::cout << std::endl;
 
         // Loops
         std::cout << "[SLAMEventHandler][DrawKeyFrames()]     Loops: ";
@@ -163,6 +170,7 @@ void MapDrawer::DrawKeyFrames()
         {
             std::cout << (*sit)->mnId << ", ";
         }
+        std::cout << std::endl;
 
         // IMU graph
         if (pActiveMap->isImuInitialized()) {

@@ -32,7 +32,8 @@ namespace ORB_SLAM3
         virtual void handleTrackingResetActiveMapImpl();
         virtual void handleTrackingResetImpl();
         virtual void handleTrackingUpdateImpl(Tracking* tracker);
-        virtual void handleCameraPoseUpdateImpl(Tracking* tracker, Sophus::SE3f pose);
+        virtual void handleFrameUpdateImpl(Tracking* tracker, Frame* frame);
+        virtual void handleKeyFrameUpdateImpl(Tracking* tracker, KeyFrame* frame);
 
         ORB_SLAM3::System* mpSystem = NULL;
         ORB_SLAM3::Tracking* mpTracker = NULL;

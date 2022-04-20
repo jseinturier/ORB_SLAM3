@@ -13,7 +13,20 @@ IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
-MESSAGE("Build type: " ${CMAKE_BUILD_TYPE})
+MESSAGE("Build type  : " ${CMAKE_BUILD_TYPE})
+
+if(NOT DEFINED BUILD_SHARED_LIBS)
+  set(BUILD_SHARED_LIBS "true" CACHE BOOL "Build shared libraries")
+  MESSAGE("Library type: shared (default)")
+else()
+  if (BUILD_SHARED_LIBS)
+    MESSAGE("Library type: shared")
+  else()
+    MESSAGE("Library type: static")
+  endif()
+endif()
+
+
 
 #######
 # C++ Configuration
@@ -28,17 +41,23 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 # MSVC FIX FOR C++17 MACROS
 if(MSVC)
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /W2 /Ox")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /bigobj /W2 /Ox")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W2 /Ox")
 
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:__cplusplus -DUNICODE")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj /Zc:__cplusplus -DUNICODE")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D_HAS_STD_BYTE=0 /DNOMINMAX=1") # Avoid STL byte error on MSVC
 else()
-
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -O3")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3")
+  
   set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native -fPIC")
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native -fPIC")
+  
+  if (BUILD_SHARED_LIBS)
+   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  endif()
+  
 endif(MSVC)
 
 if(WIN32) # WINDOWS DLL SYMBOLS
@@ -56,10 +75,6 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 #if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 #  set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/install" CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
 #endif()
-
-if(NOT DEFINED BUILD_SHARED_LIBS)
-set(BUILD_SHARED_LIBS "true" CACHE BOOL "Build shared libraries")
-endif()
 
 find_package(OpenCV 4.4)
    if(NOT OpenCV_FOUND)
