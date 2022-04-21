@@ -2210,15 +2210,16 @@ void Tracking::Track()
         vdLMTrack_ms.push_back(timeLMTrack);
 #endif
 
-        // Update drawer
-        for (const auto& handler : mEvent_Handlers) {
-           handler->handleTrackingUpdate(this);
-        }
-
+        // Update Frame processor
         if (mCurrentFrame.isSet()) {
             for (const auto& handler : mEvent_Handlers) {
                 handler->handleFrameUpdate(this, &mCurrentFrame);
             }
+        }
+
+        // Update Map processor
+        for (const auto& handler : mEvent_Handlers) {
+           handler->handleTrackingUpdate(this);
         }
 
         if(bOK || mState==RECENTLY_LOST)

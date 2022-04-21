@@ -40,9 +40,8 @@ MapDrawer::MapDrawer(Atlas* pAtlas):mpAtlas(pAtlas)
 
 }
 
-void MapDrawer::DrawMapPoints()
+void MapDrawer::DrawMapPoints(std::ostream& stream)
 {
-    std::cout << "@PTSB" << std::endl;
 
     Map* pActiveMap = mpAtlas->GetCurrentMap();
     if(!pActiveMap)
@@ -56,28 +55,28 @@ void MapDrawer::DrawMapPoints()
     if(vpMPs.empty())
         return;
 
+    stream << "@PTSB " << pActiveMap->GetId() << " " << vpMPs.size() << " " << vpRefMPs.size() << std::endl;
     
-    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - All: "<< vpMPs.size() << " points" << std::endl;
-/*
+    for (set<MapPoint*>::iterator sit = spRefMPs.begin(), send = spRefMPs.end(); sit != send; sit++)
+    {
+        MapPoint* point = *sit;
+
+        if (point->isBad())
+            continue;
+        Eigen::Matrix<float, 3, 1> pos = point->GetWorldPos();
+        stream << "@PT R " << point->mnId << " " << point->GetReferenceKeyFrame()->mnId << " " << pos(0) << " " << pos(1) << " " << pos(2) << std::endl;
+    }
+
     for(size_t i=0, iend=vpMPs.size(); i<iend;i++)
     {
-        if(vpMPs[i]->isBad() || spRefMPs.count(vpMPs[i]))
-            continue;
-        Eigen::Matrix<float,3,1> pos = vpMPs[i]->GetWorldPos();
-        std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
-    }
-*/   
-    std::cout << "[SLAMEventHandler][DrawMapPoints()]   - Reference: " << spRefMPs .size() <<" points" << std::endl;
-/*
-    for(set<MapPoint*>::iterator sit=spRefMPs.begin(), send=spRefMPs.end(); sit!=send; sit++)
-    {
-        if((*sit)->isBad())
-            continue;
-        Eigen::Matrix<float,3,1> pos = (*sit)->GetWorldPos();
-        std::cout << "[SLAMEventHandler][DrawMapPoints()]     Point (" << pos(0) << ", " << pos(1) << ", " << pos(2) << ")" << std::endl;
+        MapPoint* point = vpMPs[i];
 
+        if(point->isBad() || spRefMPs.count(point))
+            continue;
+        Eigen::Matrix<float,3,1> pos = point->GetWorldPos();
+        stream << "@PT A " << point->mnId << " " << point->GetReferenceKeyFrame()->mnId << " " << pos(0) << " " << pos(1) << " " << pos(2) << std::endl;
     }
-*/
+
     std::cout << "@PTSE" << std::endl;
 }
 

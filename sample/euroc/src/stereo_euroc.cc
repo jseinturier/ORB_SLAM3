@@ -176,11 +176,11 @@ int main(int argc, char** argv)
     }
     // Stop all threads
     SLAM.Shutdown();
-/*
-    if (processor_thread.joinable()) {
-        processor_thread.join();
-    }
-*/
+    
+//    if (processor_thread.joinable()) {
+//        processor_thread.join();
+//    }
+
     // Save camera trajectory
     if (bFileName)
     {

@@ -42,7 +42,7 @@ public:
 
     Atlas* mpAtlas;
 
-    void DrawMapPoints();
+    void DrawMapPoints(std::ostream& stream=std::cout);
     void DrawKeyFrames();
     void DrawCurrentCamera(cv::Matx44f& Twc);
     void SetCurrentCameraPose(const Sophus::SE3f &Tcw);

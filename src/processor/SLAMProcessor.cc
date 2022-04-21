@@ -52,8 +52,6 @@ void ORB_SLAM3::SLAMProcessor::process()
     unsigned int fps = 5;
 
     float trackedImageScale = mpTracker->GetImageScale();
-/*
-    cout << "Starting the Viewer" << endl;
 
     mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc, Ow);
 
@@ -82,7 +80,7 @@ void ORB_SLAM3::SLAMProcessor::process()
 
     if (m_process_points)
         mpMapDrawer->DrawMapPoints();
-*/
+
     cv::Mat toShow;
     cv::Mat im = mpFrameDrawer->DrawFrame(trackedImageScale);
 
@@ -98,40 +96,10 @@ void ORB_SLAM3::SLAMProcessor::process()
 
     cv::imshow("ORB-SLAM3: Current Frame", toShow);
     cv::waitKey(1e3 / fps);
-/*
-        if (menuReset)
-        {
-            menuShowGraph = true;
-            menuShowInertialGraph = true;
-            menuShowKeyFrames = true;
-            menuShowPoints = true;
-            menuLocalizationMode = false;
-            if (bLocalizationMode)
-                mpSystem->DeactivateLocalizationMode();
-            bLocalizationMode = false;
-            bFollow = true;
-            mpSystem->ResetActiveMap();
-            menuReset = false;
-        }
-*/
+
     if (mpSystem->isFinished()) {
         m_process_running = false;
     }
-/*
-                if (menuStop)
-                {
-                    if (bLocalizationMode)
-                        mpSystem->DeactivateLocalizationMode();
-
-                    // Stop all threads
-                    mpSystem->Shutdown();
-
-                    // Save camera trajectory
-                    mpSystem->SaveTrajectoryEuRoC("CameraTrajectory.txt");
-                    mpSystem->SaveKeyFrameTrajectoryEuRoC("KeyFrameTrajectory.txt");
-                    menuStop = false;
-                }
-*/
 
 }
     void ORB_SLAM3::SLAMProcessor::run() {
