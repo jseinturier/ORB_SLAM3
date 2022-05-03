@@ -28,7 +28,7 @@
 #include<System.h>
 #include<MapDrawer.h>
 #include<FrameDrawer.h>
-#include<processor/SLAMProcessor.hpp>
+#include<processor/SLAMProcessorStream.hpp>
 
 using namespace std;
 
@@ -101,11 +101,11 @@ int main(int argc, char** argv)
     ORB_SLAM3::FrameDrawer frame_drawer(SLAM.atlas());
 
     // Create a processor
-    ORB_SLAM3::SLAMProcessor processor(&SLAM, SLAM.tracker(), &map_drawer, &frame_drawer, cv::Size(600, 400));
+    ORB_SLAM3::SLAMProcessorStream processor(&SLAM, SLAM.tracker(), &map_drawer, &frame_drawer, cv::Size(600, 400));
     SLAM.addSLAMEventHandler(&processor);
 
     // Start the processor
-    //std::thread processor_thread(&ORB_SLAM3::SLAMProcessor::run, &processor);
+    std::thread processor_thread(&ORB_SLAM3::SLAMProcessor::run, &processor);
 
     cv::Mat imLeft, imRight;
     for (seq = 0; seq < num_seq; seq++)
@@ -177,9 +177,9 @@ int main(int argc, char** argv)
     // Stop all threads
     SLAM.Shutdown();
     
-//    if (processor_thread.joinable()) {
-//        processor_thread.join();
-//    }
+    if (processor_thread.joinable()) {
+        processor_thread.join();
+    }
 
     // Save camera trajectory
     if (bFileName)

@@ -113,37 +113,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/CameraModels)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include/processor)
 
+FILE(GLOB_RECURSE CURRENT_PROJECT_HEADERS "include/*.h" "include/*.hh" "include/*.hpp")
+FILE(GLOB_RECURSE CURRENT_PROJECT_SOURCES "src/*.cpp" "src/*.cc")
+
 target_sources(${PROJECT_NAME} 
 PRIVATE
-src/System.cc
-src/Tracking.cc
-src/LocalMapping.cc
-src/LoopClosing.cc
-src/ORBextractor.cc
-src/ORBmatcher.cc
-src/FrameDrawer.cc
-src/Converter.cc
-src/MapPoint.cc
-src/KeyFrame.cc
-src/Atlas.cc
-src/Map.cc
-src/MapDrawer.cc
-src/Optimizer.cc
-src/Frame.cc
-src/KeyFrameDatabase.cc
-src/Sim3Solver.cc
-src/ImuTypes.cc
-src/G2oTypes.cc
-src/CameraModels/Pinhole.cpp
-src/CameraModels/KannalaBrandt8.cpp
-src/OptimizableTypes.cpp
-src/MLPnPsolver.cpp
-src/GeometricTools.cc
-src/TwoViewReconstruction.cc
-src/Config.cc
-src/Settings.cc
-src/processor/SLAMEventHandler.cc
-src/processor/SLAMProcessor.cc)
+${CURRENT_PROJECT_SOURCES}
+PUBLIC
+${CURRENT_PROJECT_HEADERS}
+)
 
 # Dependecy to DBoW2
 add_subdirectory(Thirdparty/DBoW2)

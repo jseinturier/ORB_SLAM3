@@ -1,24 +1,24 @@
-#include <processor/SLAMProcessor.hpp>
+#include <processor/SLAMProcessorStream.hpp>
 
 // Heritage
-void ORB_SLAM3::SLAMProcessor::handleTrackingResetActiveMapImpl() {
+void ORB_SLAM3::SLAMProcessorStream::handleTrackingResetActiveMapImpl() {
     std::cout << "[handleTrackingResetActiveMapImpl()]" << std::endl;
 }
 
-void ORB_SLAM3::SLAMProcessor::handleTrackingResetImpl() {
+void ORB_SLAM3::SLAMProcessorStream::handleTrackingResetImpl() {
     std::cout << "[handleTrackingResetImpl()]" << std::endl;
 }
 
-void ORB_SLAM3::SLAMProcessor::handleTrackingUpdateImpl(ORB_SLAM3::Tracking* tracker) {
+void ORB_SLAM3::SLAMProcessorStream::handleTrackingUpdateImpl(ORB_SLAM3::Tracking* tracker) {
     std::cout << "[handleTrackingUpdateImpl(Tracking*)]" << std::endl;
     if (mpFrameDrawer != NULL) {
         mpFrameDrawer->Update(tracker);
     }
 
-    process();
+    //process();
 }
 
-void ORB_SLAM3::SLAMProcessor::handleFrameUpdateImpl(ORB_SLAM3::Tracking* tracker, Frame* frame) {
+void ORB_SLAM3::SLAMProcessorStream::handleFrameUpdateImpl(ORB_SLAM3::Tracking* tracker, Frame* frame) {
     std::cout << "[handleFrameUpdateImpl(Tracking*, Frame*)] " << frame->mnId << std::endl;
     if (mpMapDrawer != NULL) {
         mpMapDrawer->SetCurrentCameraPose(frame->GetPose());
@@ -26,14 +26,14 @@ void ORB_SLAM3::SLAMProcessor::handleFrameUpdateImpl(ORB_SLAM3::Tracking* tracke
     }
 }
 
-void ORB_SLAM3::SLAMProcessor::handleKeyFrameUpdateImpl(ORB_SLAM3::Tracking* tracker, KeyFrame* frame) {
+void ORB_SLAM3::SLAMProcessorStream::handleKeyFrameUpdateImpl(ORB_SLAM3::Tracking* tracker, KeyFrame* frame) {
     std::cout << "[handleKeyFrameUpdateImpl(Tracking*, KeyFrame*)] " << frame->mnId << std::endl;
     if (mpMapDrawer != NULL) {
         mpMapDrawer->SetCurrentCameraPose(frame->GetPose());
     }
 }
 
-void ORB_SLAM3::SLAMProcessor::process()
+void ORB_SLAM3::SLAMProcessorStream::processImpl()
 {
     bool mbFinished = false;
     bool mbStopped = false;
@@ -44,40 +44,17 @@ void ORB_SLAM3::SLAMProcessor::process()
 
     cv::namedWindow("ORB-SLAM3: Current Frame");
 
-    bool bFollow = true;
-    bool bLocalizationMode = false;
-    bool bStepByStep = false;
-    bool bCameraView = true;
-
     unsigned int fps = 5;
 
     float trackedImageScale = mpTracker->GetImageScale();
 
     mpMapDrawer->GetCurrentOpenGLCameraMatrix(Twc, Ow);
-
-    if (bLocalizationMode)
-    {
-        mpSystem->ActivateLocalizationMode();
-    }
-    else
-    {
-        mpSystem->DeactivateLocalizationMode();
-    }
-
-    if (bStepByStep)
-    {
-        mpTracker->SetStepByStep(true);
-    }
-    else
-    {
-        mpTracker->SetStepByStep(false);
-    }
-
+/*
     mpMapDrawer->DrawCurrentCamera(Twc);
 
     if (m_process_keyframes || m_process_graph || m_process_inertial_graph || m_process_opt_lba)
         mpMapDrawer->DrawKeyFrames();
-
+*/
     if (m_process_points)
         mpMapDrawer->DrawMapPoints();
 
@@ -102,10 +79,3 @@ void ORB_SLAM3::SLAMProcessor::process()
     }
 
 }
-    void ORB_SLAM3::SLAMProcessor::run() {
-        m_process_running = true;
-
-        while (m_process_running) {
-            process();
-        }
-    }

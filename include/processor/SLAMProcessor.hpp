@@ -22,19 +22,17 @@ namespace ORB_SLAM3
             : mpSystem{ system }, mpTracker{ tracker }, mpMapDrawer{ map_drawer }, mpFrameDrawer{ frame_drawer },
             m_image_display_size{ imageDisplaySize }{};
 
-        void process();
+        void process() { processImpl(); };
 
-        void run();
+        void run(){
+        m_process_running = true;
 
-    private:
+        while (m_process_running) {
+            process();
+        };
+    }
 
-        // Heritage
-        virtual void handleTrackingResetActiveMapImpl();
-        virtual void handleTrackingResetImpl();
-        virtual void handleTrackingUpdateImpl(Tracking* tracker);
-        virtual void handleFrameUpdateImpl(Tracking* tracker, Frame* frame);
-        virtual void handleKeyFrameUpdateImpl(Tracking* tracker, KeyFrame* frame);
-
+	protected:
         ORB_SLAM3::System* mpSystem = NULL;
         ORB_SLAM3::Tracking* mpTracker = NULL;
         ORB_SLAM3::MapDrawer* mpMapDrawer = NULL;
@@ -51,6 +49,17 @@ namespace ORB_SLAM3
         cv::Size m_image_display_size;
 
         atomic<bool> m_process_running = false;
+
+    private:
+
+        // Heritage
+        virtual void handleTrackingResetActiveMapImpl() = 0;
+        virtual void handleTrackingResetImpl() = 0;
+        virtual void handleTrackingUpdateImpl(Tracking* tracker) = 0;
+        virtual void handleFrameUpdateImpl(Tracking* tracker, Frame* frame) = 0;
+        virtual void handleKeyFrameUpdateImpl(Tracking* tracker, KeyFrame* frame) = 0;
+
+        virtual void processImpl() = 0;
     };
 }
 #endif

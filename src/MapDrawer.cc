@@ -56,7 +56,7 @@ void MapDrawer::DrawMapPoints(std::ostream& stream)
         return;
 
     stream << "@PTSB " << pActiveMap->GetId() << " " << vpMPs.size() << " " << vpRefMPs.size() << std::endl;
-    
+/*
     for (set<MapPoint*>::iterator sit = spRefMPs.begin(), send = spRefMPs.end(); sit != send; sit++)
     {
         MapPoint* point = *sit;
@@ -76,7 +76,7 @@ void MapDrawer::DrawMapPoints(std::ostream& stream)
         Eigen::Matrix<float,3,1> pos = point->GetWorldPos();
         stream << "@PT A " << point->mnId << " " << point->GetReferenceKeyFrame()->mnId << " " << pos(0) << " " << pos(1) << " " << pos(2) << std::endl;
     }
-
+*/
     std::cout << "@PTSE" << std::endl;
 }
 
