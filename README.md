@@ -1,5 +1,29 @@
 # ORB-SLAM3
 
+## TODO
+Finish splitting type between:
+
+- Monocular
+- Monocular IMU
+- Stereo
+- Stereo IMU
+
+Frame and KeyFrame are under modification
+```
+                  Frame
+                  /  \
+                 /    \
+                /      \
+        MonoFrame      IMUFrame
+           |               |
+           |               |
+        StereoFrame        |
+              \           /
+               \         /
+                \       /	
+              StereoIMUFrame
+           		   
+```				  
 ### V1.0, December 22th, 2021
 **Authors:** Carlos Campos, Richard Elvira, Juan J. Gómez Rodríguez, [José M. M. Montiel](http://webdiis.unizar.es/~josemari/), [Juan D. Tardos](http://webdiis.unizar.es/~jdtardos/).
 
