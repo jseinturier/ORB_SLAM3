@@ -35,15 +35,15 @@ KeyFrame::KeyFrame():
         mbf(0), mb(0), mThDepth(0), N(0), mvKeys(static_cast<vector<cv::KeyPoint> >(NULL)), mvKeysUn(static_cast<vector<cv::KeyPoint> >(NULL)),
         mvuRight(static_cast<vector<float> >(NULL)), mvDepth(static_cast<vector<float> >(NULL)), mnScaleLevels(0), mfScaleFactor(0),
         mfLogScaleFactor(0), mvScaleFactors(0), mvLevelSigma2(0), mvInvLevelSigma2(0), mnMinX(0), mnMinY(0), mnMaxX(0),
-        mnMaxY(0), mPrevKF(static_cast<KeyFrame*>(NULL)), mNextKF(static_cast<KeyFrame*>(NULL)), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
+        mnMaxY(0), mbFirstConnection(true), mpParent(NULL), mbNotErase(false),
         mbToBeErased(false), mbBad(false), mHalfBaseline(0), mbCurrentPlaceRecognition(false), mnMergeCorrectedForKF(0),
-        NLeft(0),NRight(0), mnNumberOfOpt(0), mbHasVelocity(false)
+        NLeft(0),NRight(0), mnNumberOfOpt(0)
 {
 
 }
 
 KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
-    bImu(pMap->isImuInitialized()), mnFrameId(F.mnId),  mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
+    mnFrameId(F.mnId),  mTimeStamp(F.mTimeStamp), mnGridCols(FRAME_GRID_COLS), mnGridRows(FRAME_GRID_ROWS),
     mfGridElementWidthInv(F.mfGridElementWidthInv), mfGridElementHeightInv(F.mfGridElementHeightInv),
     mnTrackReferenceForFrame(0), mnFuseTargetForKF(0), mnBALocalForKF(0), mnBAFixedForKF(0), mnBALocalForMerge(0),
     mnLoopQuery(0), mnLoopWords(0), mnRelocQuery(0), mnRelocWords(0), mnBAGlobalForKF(0), mnPlaceRecognitionQuery(0), mnPlaceRecognitionWords(0), mPlaceRecognitionScore(0),
@@ -53,13 +53,12 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
     mBowVec(F.mBowVec), mFeatVec(F.mFeatVec), mnScaleLevels(F.mnScaleLevels), mfScaleFactor(F.mfScaleFactor),
     mfLogScaleFactor(F.mfLogScaleFactor), mvScaleFactors(F.mvScaleFactors), mvLevelSigma2(F.mvLevelSigma2),
     mvInvLevelSigma2(F.mvInvLevelSigma2), mnMinX(F.mnMinX), mnMinY(F.mnMinY), mnMaxX(F.mnMaxX),
-    mnMaxY(F.mnMaxY), mK_(F.mK_), mPrevKF(NULL), mNextKF(NULL), mpImuPreintegrated(F.mpImuPreintegrated),
-    mImuCalib(F.mImuCalib), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
+    mnMaxY(F.mnMaxY), mK_(F.mK_), mvpMapPoints(F.mvpMapPoints), mpKeyFrameDB(pKFDB),
     mpORBvocabulary(F.mpORBvocabulary), mbFirstConnection(true), mpParent(NULL), mDistCoef(F.mDistCoef), mbNotErase(false), mnDataset(F.mnDataset),
     mbToBeErased(false), mbBad(false), mHalfBaseline(F.mb/2), mpMap(pMap), mbCurrentPlaceRecognition(false), mNameFile(F.mNameFile), mnMergeCorrectedForKF(0),
     mpCamera(F.mpCamera), mpCamera2(F.mpCamera2),
     mvLeftToRightMatch(F.mvLeftToRightMatch),mvRightToLeftMatch(F.mvRightToLeftMatch), mTlr(F.GetRelativePoseTlr()),
-    mvKeysRight(F.mvKeysRight), NLeft(F.Nleft), NRight(F.Nright), mTrl(F.GetRelativePoseTrl()), mnNumberOfOpt(0), mbHasVelocity(false)
+    mvKeysRight(F.mvKeysRight), NLeft(F.Nleft), NRight(F.Nright), mTrl(F.GetRelativePoseTrl()), mnNumberOfOpt(0)
 {
     mnId=nNextId++;
 
@@ -77,19 +76,6 @@ KeyFrame::KeyFrame(Frame &F, Map *pMap, KeyFrameDatabase *pKFDB):
         }
     }
 
-
-
-    if(!F.HasVelocity()) {
-        mVw.setZero();
-        mbHasVelocity = false;
-    }
-    else
-    {
-        mVw = F.GetVelocity();
-        mbHasVelocity = true;
-    }
-
-    mImuBias = F.mImuBias;
     SetPose(F.GetPose());
 
     mnOriginMapId = pMap->GetId();
@@ -114,18 +100,6 @@ void KeyFrame::SetPose(const Sophus::SE3f &Tcw)
     mRcw = mTcw.rotationMatrix();
     mTwc = mTcw.inverse();
     mRwc = mTwc.rotationMatrix();
-
-    if (mImuCalib.mbIsSet) // TODO Use a flag instead of the OpenCV matrix
-    {
-        mOwb = mRwc * mImuCalib.mTcb.translation() + mTwc.translation();
-    }
-}
-
-void KeyFrame::SetVelocity(const Eigen::Vector3f &Vw)
-{
-    unique_lock<mutex> lock(mMutexPose);
-    mVw = Vw;
-    mbHasVelocity = true;
 }
 
 Sophus::SE3f KeyFrame::GetPose()
@@ -145,24 +119,6 @@ Eigen::Vector3f KeyFrame::GetCameraCenter(){
     return mTwc.translation();
 }
 
-Eigen::Vector3f KeyFrame::GetImuPosition()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return mOwb;
-}
-
-Eigen::Matrix3f KeyFrame::GetImuRotation()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return (mTwc * mImuCalib.mTcb).rotationMatrix();
-}
-
-Sophus::SE3f KeyFrame::GetImuPose()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return mTwc * mImuCalib.mTcb;
-}
-
 Eigen::Matrix3f KeyFrame::GetRotation(){
     unique_lock<mutex> lock(mMutexPose);
     return mRcw;
@@ -172,18 +128,6 @@ Eigen::Vector3f KeyFrame::GetTranslation()
 {
     unique_lock<mutex> lock(mMutexPose);
     return mTcw.translation();
-}
-
-Eigen::Vector3f KeyFrame::GetVelocity()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return mVw;
-}
-
-bool KeyFrame::isVelocitySet()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return mbHasVelocity;
 }
 
 void KeyFrame::AddConnection(KeyFrame *pKF, const int &weight)
@@ -806,32 +750,6 @@ float KeyFrame::ComputeSceneMedianDepth(const int q)
     return vDepths[(vDepths.size()-1)/q];
 }
 
-void KeyFrame::SetNewBias(const IMU::Bias &b)
-{
-    unique_lock<mutex> lock(mMutexPose);
-    mImuBias = b;
-    if(mpImuPreintegrated)
-        mpImuPreintegrated->SetNewBias(b);
-}
-
-Eigen::Vector3f KeyFrame::GetGyroBias()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return Eigen::Vector3f(mImuBias.bwx, mImuBias.bwy, mImuBias.bwz);
-}
-
-Eigen::Vector3f KeyFrame::GetAccBias()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return Eigen::Vector3f(mImuBias.bax, mImuBias.bay, mImuBias.baz);
-}
-
-IMU::Bias KeyFrame::GetImuBias()
-{
-    unique_lock<mutex> lock(mMutexPose);
-    return mImuBias;
-}
-
 Map* KeyFrame::GetMap()
 {
     unique_lock<mutex> lock(mMutexMap);
@@ -905,18 +823,6 @@ void KeyFrame::PreSave(set<KeyFrame*>& spKF,set<MapPoint*>& spMP, set<GeometricC
     mnBackupIdCamera2 = -1;
     if(mpCamera2 && spCam.find(mpCamera2) != spCam.end())
         mnBackupIdCamera2 = mpCamera2->GetId();
-
-    //Inertial data
-    mBackupPrevKFId = -1;
-    if(mPrevKF && spKF.find(mPrevKF) != spKF.end())
-        mBackupPrevKFId = mPrevKF->mnId;
-
-    mBackupNextKFId = -1;
-    if(mNextKF && spKF.find(mNextKF) != spKF.end())
-        mBackupNextKFId = mNextKF->mnId;
-
-    if(mpImuPreintegrated)
-        mBackupImuPreintegrated.CopyFrom(mpImuPreintegrated);
 }
 
 void KeyFrame::PostLoad(map<long unsigned int, KeyFrame*>& mpKFid, map<long unsigned int, MapPoint*>& mpMPid, map<unsigned int, GeometricCamera*>& mpCamId){
