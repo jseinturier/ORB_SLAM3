@@ -15,6 +15,7 @@ namespace ORB_SLAM3
 		void handleMapCreated(Atlas* atlas, Map* map) {};
 
 		void handleTrackingResetActiveMap() { handleTrackingResetActiveMapImpl(); };
+
 		void handleTrackingReset() { handleTrackingResetImpl(); };
 
 		void handleTrackingUpdate(Tracking* tracker) { handleTrackingUpdateImpl(tracker); };
