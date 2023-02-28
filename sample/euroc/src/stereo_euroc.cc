@@ -101,7 +101,7 @@ int main(int argc, char** argv)
     ORB_SLAM3::FrameDrawer frame_drawer(SLAM.atlas());
 
     // Create a processor
-    ORB_SLAM3::SLAMProcessorStream processor(&SLAM, SLAM.tracker(), &map_drawer, &frame_drawer, cv::Size(600, 400));
+    ORB_SLAM3::SLAMProcessorStream processor(&SLAM, SLAM.tracker(), std::cout, &map_drawer, &frame_drawer, cv::Size(600, 400));
     SLAM.addSLAMEventHandler(&processor);
 
     // Start the processor

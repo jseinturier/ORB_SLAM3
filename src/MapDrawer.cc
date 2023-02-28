@@ -77,7 +77,7 @@ void MapDrawer::DrawMapPoints(std::ostream& stream)
         stream << "@PT A " << point->mnId << " " << point->GetReferenceKeyFrame()->mnId << " " << pos(0) << " " << pos(1) << " " << pos(2) << std::endl;
     }
 */
-    std::cout << "@PTSE" << std::endl;
+    stream << "@PTSE" << std::endl;
 }
 
 void MapDrawer::DrawKeyFrames()

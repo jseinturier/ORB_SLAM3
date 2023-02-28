@@ -11,6 +11,8 @@
 
 #include <atomic>
 
+#include<mutex>
+
 namespace ORB_SLAM3
 {
 
@@ -37,6 +39,10 @@ namespace ORB_SLAM3
         ORB_SLAM3::Tracking* mpTracker = NULL;
         ORB_SLAM3::MapDrawer* mpMapDrawer = NULL;
         ORB_SLAM3::FrameDrawer* mpFrameDrawer = NULL;
+
+        Eigen::Matrix4f m_camera_pose;
+
+        std::mutex m_camera_pose_mutex;
 
         atomic<bool> m_process_graph = true;
         atomic<bool> m_process_keyframes = true;

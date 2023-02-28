@@ -9,10 +9,13 @@ namespace ORB_SLAM3
 
     public:
 
-        SLAMProcessorStream(ORB_SLAM3::System* system, ORB_SLAM3::Tracking* tracker, ORB_SLAM3::MapDrawer* map_drawer, ORB_SLAM3::FrameDrawer* frame_drawer, cv::Size imageDisplaySize)
-            : SLAMProcessor(system, tracker, map_drawer, frame_drawer, imageDisplaySize) {};
+        SLAMProcessorStream(ORB_SLAM3::System* system, ORB_SLAM3::Tracking* tracker, std::ostream& stream, ORB_SLAM3::MapDrawer* map_drawer, ORB_SLAM3::FrameDrawer* frame_drawer, cv::Size imageDisplaySize)
+            : m_stream{ stream }, SLAMProcessor(system, tracker, map_drawer, frame_drawer, imageDisplaySize) {
+        };
 
     private:
+
+        std::ostream& m_stream;
 
         // Heritage
         virtual void handleTrackingResetActiveMapImpl();
@@ -22,6 +25,9 @@ namespace ORB_SLAM3
         virtual void handleKeyFrameUpdateImpl(Tracking* tracker, KeyFrame* frame);
 
         virtual void processImpl();
+
+        void stream_map_points();
+        void stream_camera_current_transform();
     };
 }
 
